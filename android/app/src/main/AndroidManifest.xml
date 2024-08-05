@@ -7,11 +7,15 @@
         android:label="trx"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- <receiver android:name=".BootReceiver">
+       <receiver
+            android:name="io.flutter.plugins.androidalarmmanager.RebootBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+             <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-        </receiver> -->
+        </receiver>
         <activity
             android:name=".MainActivity"
             android:exported="true"
