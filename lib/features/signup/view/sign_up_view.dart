@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:trx/components/custom_elevated_button.dart';
 import 'package:trx/components/custom_text_field.dart';
 import 'package:trx/features/home/view/home_view.dart';
-import 'package:trx/features/signup/view/sign_up_view.dart';
 
-import '../../../components/custom_elevated_button.dart';
-
-class SignInView extends StatefulWidget {
-  const SignInView({super.key});
+class SignUpView extends StatefulWidget {
+  const SignUpView({super.key});
 
   @override
-  State<SignInView> createState() => _SignInViewState();
+  State<SignUpView> createState() => _SignUpViewState();
 }
 
-class _SignInViewState extends State<SignInView> {
+class _SignUpViewState extends State<SignUpView> {
   bool isObscure = true;
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController macAdressController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +42,20 @@ class _SignInViewState extends State<SignInView> {
               height: MediaQuery.of(context).size.height * 0.02,
             ),
             CustomTextField(
+                controller: emailController,
+                hintText: "E-Posta",
+                icon: Icons.mail),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.02,
+            ),
+            CustomTextField(
+                controller: macAdressController,
+                hintText: "Cihaz Mac Adresi",
+                icon: Icons.mobile_friendly),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.02,
+            ),
+            CustomTextField(
               controller: passwordController,
               hintText: "Şifre",
               icon: Icons.lock,
@@ -61,33 +75,11 @@ class _SignInViewState extends State<SignInView> {
               height: MediaQuery.of(context).size.height * 0.02,
             ),
             CustomElevatedButton(
-              buttonText: "Giriş Yap",
+              buttonText: "Kayıt Ol",
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const HomeView()));
               },
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.04,
-            ),
-            Row(
-              children: [
-                const Text("Henüz TRAXNAVlı değil misin?"),
-                TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SignUpView()));
-                    },
-                    child: const Text(
-                      "TRAXNAVLI Ol",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 0, 154, 160),
-                      ),
-                    ))
-              ],
             )
           ]),
         ),
