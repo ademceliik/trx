@@ -29,6 +29,7 @@ class NetworkManager {
     switch (response.statusCode) {
       case 200:
         final responseBody = response.data;
+        log(responseBody);
         if ((responseBody is List) && model != null) {
           return responseBody.map((e) => model.fromJson(e)).toList();
         } else if ((responseBody is Map) && model != null) {
@@ -43,9 +44,9 @@ class NetworkManager {
   Future<dynamic> dioPost<T extends BaseModel>(String path,
       {T? model, dynamic data, Options? options}) async {
     Response response = await _dio.post(path, options: options, data: data);
-
     if (response.statusCode == 200 || response.statusCode == 201) {
       final responseBody = response.data;
+      //log(responseBody.toString());
       if ((responseBody is List) && model != null) {
         return responseBody.map((e) => model.fromJson(e)).toList();
       } else if ((responseBody is Map) && model != null) {

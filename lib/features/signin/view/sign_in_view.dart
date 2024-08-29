@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:trx/components/custom_text_field.dart';
 import 'package:trx/features/home/view/home_view.dart';
 import 'package:trx/features/signup/view/sign_up_view.dart';
+import 'package:trx/user/viewmodel/user_viewmodel.dart';
 
 import '../../../components/custom_elevated_button.dart';
 
@@ -16,6 +17,7 @@ class _SignInViewState extends State<SignInView> {
   bool isObscure = true;
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  UserViewmodel uvm = UserViewmodel();
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +65,11 @@ class _SignInViewState extends State<SignInView> {
             CustomElevatedButton(
               buttonText: "Giriş Yap",
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const HomeView()));
+                uvm.login(
+                    email: usernameController.text,
+                    password: passwordController.text);
+                /*  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const HomeView())); */
               },
             ),
             SizedBox(
