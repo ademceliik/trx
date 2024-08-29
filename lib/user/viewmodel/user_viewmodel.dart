@@ -24,10 +24,31 @@ class UserViewmodel with ChangeNotifier implements UserService {
   }) async {
     loginState = ViewState.busy;
     try {
-      userModel = await _service.login(
+      return userModel = await _service.login(
         email: email,
         password: password,
       );
+    } on DioException catch (e) {
+      print(e);
+      return false;
+    } finally {
+      loginState = ViewState.idle;
+    }
+  }
+
+  @override
+  Future register(
+      {required String fullName,
+      required String userName,
+      required String email,
+      required String password}) async {
+    loginState = ViewState.busy;
+    try {
+      userModel = await _service.register(
+          fullName: fullName,
+          userName: userName,
+          email: email,
+          password: password);
     } on DioException catch (e) {
       print(e);
       return false;

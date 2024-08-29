@@ -20,4 +20,22 @@ class UserService extends IUserService {
       model: UserModel(),
     );
   }
+
+  @override
+  Future register(
+      {required String fullName,
+      required String userName,
+      required String email,
+      required String password}) async {
+    return NetworkManager.instance?.dioPost(
+      ServicePaths.register.path,
+      data: {
+        "fullName": fullName,
+        "userName": userName,
+        "email": email,
+        "password": password
+      },
+      model: UserModel(),
+    );
+  }
 }

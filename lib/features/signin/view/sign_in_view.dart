@@ -17,6 +17,8 @@ class _SignInViewState extends State<SignInView> {
   bool isObscure = true;
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  // user view modelimiz
   UserViewmodel uvm = UserViewmodel();
 
   @override
@@ -65,9 +67,13 @@ class _SignInViewState extends State<SignInView> {
             CustomElevatedButton(
               buttonText: "Giriş Yap",
               onPressed: () {
+                // login olunca bunun user modeli dönmesi lazım (mı?)
+                //
                 uvm.login(
                     email: usernameController.text,
                     password: passwordController.text);
+
+                // Home ekranına pushlama işlemi
                 /*  Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const HomeView())); */
               },

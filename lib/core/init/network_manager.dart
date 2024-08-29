@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:trx/core/base/base_model.dart';
 
 import '../../../product/enum/service_paths.dart';
@@ -46,11 +47,17 @@ class NetworkManager {
     Response response = await _dio.post(path, options: options, data: data);
     if (response.statusCode == 200 || response.statusCode == 201) {
       final responseBody = response.data;
-      //log(responseBody.toString());
       if ((responseBody is List) && model != null) {
         return responseBody.map((e) => model.fromJson(e)).toList();
       } else if ((responseBody is Map) && model != null) {
-        return model.fromJson(responseBody as Map<String, dynamic>);
+        // servisin döndüğü tokeni tutuyor
+        final token = responseBody["token"];
+
+        // tokeni json olarak decode ediyor
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+
+        // burada user modeli dönmen gerekiyor. dönemiyor!
+        return model.fromJson(decodedToken);
       } else {
         return responseBody;
       }

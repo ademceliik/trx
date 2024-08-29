@@ -37,3 +37,27 @@ class User {
         "password": password,
       };
 }
+
+
+/* class UserModel {
+  String? name;
+  String? username;
+  String? email;
+
+  UserModel({this.name, this.username, this.email});
+
+  UserModel.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    username = json['username'];
+    email = json['email'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['name'] = name;
+    data['username'] = username;
+    data['email'] = email;
+    return data;
+  }
+}
+ */

@@ -3,4 +3,11 @@ abstract class IUserService {
     required String email,
     required String password,
   });
+
+  Future register({
+    required String fullName,
+    required String userName,
+    required String email,
+    required String password,
+  });
 }
