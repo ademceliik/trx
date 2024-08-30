@@ -9,5 +9,6 @@ abstract class IUserService {
     required String userName,
     required String email,
     required String password,
+    //required String macAddress
   });
 }

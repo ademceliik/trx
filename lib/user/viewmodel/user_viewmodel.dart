@@ -53,11 +53,12 @@ class UserViewmodel with ChangeNotifier implements UserService {
   }
 
   @override
-  Future<UserModel?> register({
+  Future<bool?> register({
     required String fullName,
     required String userName,
     required String email,
     required String password,
+    // required String macAddress
   }) async {
     loginState = ViewState.busy;
     try {
@@ -66,11 +67,11 @@ class UserViewmodel with ChangeNotifier implements UserService {
         userName: userName,
         email: email,
         password: password,
+        //macAddress: macAddress
       );
 
-      if (response != null) {
-        userModel = response;
-        return userModel;
+      if (response!) {
+        return response;
       } else {
         throw Exception('Kayıt başarısız. Yanıt null döndü.');
       }

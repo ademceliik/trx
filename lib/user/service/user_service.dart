@@ -41,11 +41,12 @@ class UserService extends IUserService {
   }
 
   @override
-  Future<UserModel?> register({
+  Future<bool?> register({
     required String fullName,
     required String userName,
     required String email,
     required String password,
+    // required String macAddress
   }) async {
     try {
       final response = await NetworkManager.instance?.dioPost<UserModel>(
@@ -55,12 +56,12 @@ class UserService extends IUserService {
           "userName": userName,
           "email": email,
           "password": password,
+          //     "macAddress": macAddress
         },
         model: UserModel(),
       );
 
-      // Check if response is of type UserModel
-      if (response is UserModel) {
+      if (response) {
         return response;
       } else {
         throw Exception("Kayıt başarısız. Yanıt beklenen formatta değil.");

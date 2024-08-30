@@ -15,26 +15,22 @@ class UserModel extends BaseModel {
 class User {
   String? fullName;
   String? userName;
-  String email;
-  String password;
-  User(
-      {required this.password,
-      required this.email,
-      this.userName,
-      this.fullName});
+  String? email;
+  String? macAddress;
+  User({this.macAddress, this.email, this.userName, this.fullName});
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         userName: json["userName"],
         fullName: json["fullName"],
         email: json["email"],
-        password: json["password"],
+        macAddress: json["macAddress"],
       );
 
   Map<String, dynamic> toJson() => {
         "userName": userName,
         "fullName": fullName,
         "email": email,
-        "password": password,
+        "macAddress": macAddress,
       };
 }
 

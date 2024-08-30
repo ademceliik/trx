@@ -52,16 +52,19 @@ class NetworkManager {
         return responseBody.map((e) => model.fromJson(e)).toList();
       } else if ((responseBody is Map) && model != null) {
         // servisin döndüğü tokeni tutuyor
-        final token = responseBody["token"];
+        if (responseBody.keys.elementAt(0) == "token") {
+          final token = responseBody["token"];
 
-        // tokeni json olarak decode ediyor
-        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-        log(decodedToken.values.elementAt(1));
-        User? usermodel =
-            User(password: "", email: decodedToken.values.elementAt(1));
+          // tokeni json olarak decode ediyor
+          Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+          log(decodedToken.values.elementAt(1));
+          User? usermodel = User(email: decodedToken.values.elementAt(1));
 
-        // burada user modeli dönmen gerekiyor. dönemiyor!
-        return usermodel;
+          // burada user modeli dönmen gerekiyor. dönemiyor!
+          return usermodel;
+        } else {
+          return true;
+        }
         //model.fromJson(decodedToken);
       } else {
         return responseBody;

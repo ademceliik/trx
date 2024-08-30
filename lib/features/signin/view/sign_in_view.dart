@@ -64,8 +64,8 @@ class _SignInViewState extends State<SignInView> {
                 ),
                 CustomTextField(
                   controller: usernameController,
-                  hintText: "Kullanıcı Adı",
-                  icon: Icons.person,
+                  hintText: "E-Posta",
+                  icon: Icons.email,
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.02,
