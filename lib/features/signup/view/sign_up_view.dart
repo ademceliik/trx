@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trx/components/custom_elevated_button.dart';
 import 'package:trx/components/custom_text_field.dart';
-import 'package:trx/features/home/view/home_view.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});
@@ -77,8 +76,10 @@ class _SignUpViewState extends State<SignUpView> {
             CustomElevatedButton(
               buttonText: "Kayıt Ol",
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const HomeView()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SignUpView()));
               },
             )
           ]),

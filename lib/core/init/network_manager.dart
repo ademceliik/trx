@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:trx/core/base/base_model.dart';
+import 'package:trx/user/model/user_model.dart';
 
 import '../../../product/enum/service_paths.dart';
 
@@ -55,9 +56,13 @@ class NetworkManager {
 
         // tokeni json olarak decode ediyor
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        log(decodedToken.values.elementAt(1));
+        User? usermodel =
+            User(password: "", email: decodedToken.values.elementAt(1));
 
         // burada user modeli dönmen gerekiyor. dönemiyor!
-        return model.fromJson(decodedToken);
+        return usermodel;
+        //model.fromJson(decodedToken);
       } else {
         return responseBody;
       }

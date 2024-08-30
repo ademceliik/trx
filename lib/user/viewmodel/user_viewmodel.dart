@@ -1,14 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:trx/product/enum/view_state.dart';
+import 'package:trx/user/model/user_login_model.dart';
 import 'package:trx/user/model/user_model.dart';
 import 'package:trx/user/service/user_service.dart';
 
 class UserViewmodel with ChangeNotifier implements UserService {
-  UserModel? userModel;
+  UserLoginModel? userLoginModel;
   final _service = UserService.instance;
 
   ViewState _loginState = ViewState.idle;
+  String? _token;
 
   ViewState get loginState => _loginState;
 
@@ -17,41 +19,64 @@ class UserViewmodel with ChangeNotifier implements UserService {
     notifyListeners();
   }
 
+  UserModel? userModel;
+  String? get token => _token;
+
   @override
-  Future login({
+  Future<UserModel?> login({
     required String email,
     required String password,
+    String? userToken,
   }) async {
     loginState = ViewState.busy;
     try {
-      return userModel = await _service.login(
+      final response = await _service.login(
         email: email,
         password: password,
+        userToken: userToken,
       );
+
+      if (response != null) {
+        userModel = response;
+        // _token = userLoginModel?.token;
+        return userModel;
+      } else {
+        throw Exception('Giriş başarısız. Yanıt null döndü.');
+      }
     } on DioException catch (e) {
-      print(e);
-      return false;
+      print(e.response);
+
+      return null;
     } finally {
       loginState = ViewState.idle;
     }
   }
 
   @override
-  Future register(
-      {required String fullName,
-      required String userName,
-      required String email,
-      required String password}) async {
+  Future<UserModel?> register({
+    required String fullName,
+    required String userName,
+    required String email,
+    required String password,
+  }) async {
     loginState = ViewState.busy;
     try {
-      userModel = await _service.register(
-          fullName: fullName,
-          userName: userName,
-          email: email,
-          password: password);
+      final response = await _service.register(
+        fullName: fullName,
+        userName: userName,
+        email: email,
+        password: password,
+      );
+
+      if (response != null) {
+        userModel = response;
+        return userModel;
+      } else {
+        throw Exception('Kayıt başarısız. Yanıt null döndü.');
+      }
     } on DioException catch (e) {
-      print(e);
-      return false;
+      print('DioException: ${e.message}');
+      return null;
     } finally {
       loginState = ViewState.idle;
     }
