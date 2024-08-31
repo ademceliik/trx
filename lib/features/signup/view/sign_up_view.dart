@@ -113,7 +113,42 @@ class _SignUpViewState extends State<SignUpView> {
 
     if (!mounted) return; // Check if the widget is still mounted
 
-    if (result != null) {
+    if (result is Map) {
+      //return result["message"];
+      ScaffoldMessenger.of(context).showSnackBar(
+        CustomSnackBar(
+          contentText: "Kayıt Başarılı.",
+          color: Colors.redAccent,
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SignInView(),
+        ),
+      );
+    } else if (result is List) {
+      String message = "";
+      for (var item in result) {
+        if (item["code"] == "DuplicateEmail") {
+          message += "Bu E-Posta Kullanılıyor.";
+        } else if (item["code"] == "DuplicateUserName") {
+          message += "Bu Kullanıcı Adı Var.";
+        } else if (item["code"] == "PasswordTooShort") {
+          message += "Şifre 6 Karakterden Uzun Olmalı.";
+        }
+        //message += "${item["description"]}\n";
+      }
+      // return message;
+      // Giriş başarısızsa uyarı göster
+      ScaffoldMessenger.of(context).showSnackBar(
+        CustomSnackBar(
+          contentText: message,
+          color: Colors.redAccent,
+        ),
+      );
+    }
+/*     if (result is bool) {
       ScaffoldMessenger.of(context).showSnackBar(
         CustomSnackBar(
           contentText: "Kayıt Başarılı.",
@@ -134,6 +169,6 @@ class _SignUpViewState extends State<SignUpView> {
           color: Colors.redAccent,
         ),
       );
-    }
+    } */
   }
 }

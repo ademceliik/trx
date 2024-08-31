@@ -52,6 +52,7 @@ class NetworkManager {
         return responseBody.map((e) => model.fromJson(e)).toList();
       } else if ((responseBody is Map) && model != null) {
         // servisin döndüğü tokeni tutuyor
+        // istek login istegiyse response token donuyor
         if (responseBody.keys.elementAt(0) == "token") {
           final token = responseBody["token"];
 
@@ -63,7 +64,7 @@ class NetworkManager {
           // burada user modeli dönmen gerekiyor. dönemiyor!
           return usermodel;
         } else {
-          return true;
+          return responseBody;
         }
         //model.fromJson(decodedToken);
       } else {

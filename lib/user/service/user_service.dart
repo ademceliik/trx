@@ -41,7 +41,7 @@ class UserService extends IUserService {
   }
 
   @override
-  Future<bool?> register({
+  Future<dynamic> register({
     required String fullName,
     required String userName,
     required String email,
@@ -61,16 +61,18 @@ class UserService extends IUserService {
         model: UserModel(),
       );
 
-      if (response) {
-        return response;
-      } else {
-        throw Exception("Kayıt başarısız. Yanıt beklenen formatta değil.");
-      }
+      //  if (response) {
+      return response;
+      //  } else {
+      // throw Exception("Kayıt başarısız. Yanıt beklenen formatta değil.");
+      //   }
     } on DioException catch (e) {
       // Log error response
       print(
           "DioException during registration: ${e.response?.statusCode} ${e.message}");
-      throw Exception("Kayıt başarısız. ${e.message}");
+      return e.response?.data;
+      //throw Exception("Kayıt başarısız. ${e.message}");
+      //throw Exception(e.response?.data[1]["description"]);
     } catch (e) {
       // Catch any other exceptions
       print("Unexpected error during registration: $e");

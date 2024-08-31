@@ -53,7 +53,7 @@ class UserViewmodel with ChangeNotifier implements UserService {
   }
 
   @override
-  Future<bool?> register({
+  Future<dynamic> register({
     required String fullName,
     required String userName,
     required String email,
@@ -70,13 +70,9 @@ class UserViewmodel with ChangeNotifier implements UserService {
         //macAddress: macAddress
       );
 
-      if (response!) {
-        return response;
-      } else {
-        throw Exception('Kayıt başarısız. Yanıt null döndü.');
-      }
+      return response;
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
+      print('000DioException: ${e.message}');
       return null;
     } finally {
       loginState = ViewState.idle;
