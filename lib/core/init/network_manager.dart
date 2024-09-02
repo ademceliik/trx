@@ -48,10 +48,13 @@ class NetworkManager {
     Response response = await _dio.post(path, options: options, data: data);
     if (response.statusCode == 200 || response.statusCode == 201) {
       final responseBody = response.data;
-      if ((responseBody is List) && model != null) {
-        return responseBody.map((e) => model.fromJson(e)).toList();
-      } else if ((responseBody is Map) && model != null) {
-        // servisin döndüğü tokeni tutuyor
+      if ((responseBody is Map) && model != null) {
+        if (responseBody.keys.elementAt(0) == "token") {
+          return responseBody["token"];
+        } else if (responseBody.keys.elementAt(0) == "message") {
+          return responseBody["message"];
+        }
+/*         // servisin döndüğü tokeni tutuyor
         // istek login istegiyse response token donuyor
         if (responseBody.keys.elementAt(0) == "token") {
           final token = responseBody["token"];
@@ -61,12 +64,12 @@ class NetworkManager {
           log(decodedToken.values.elementAt(1));
           User? usermodel = User(email: decodedToken.values.elementAt(1));
 
-          // burada user modeli dönmen gerekiyor. dönemiyor!
+          // user modeli donuluyor.
           return usermodel;
         } else {
           return responseBody;
         }
-        //model.fromJson(decodedToken);
+        //model.fromJson(decodedToken); */
       } else {
         return responseBody;
       }

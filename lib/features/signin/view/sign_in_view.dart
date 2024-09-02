@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:provider/provider.dart';
 import 'package:trx/components/custom_elevated_button.dart';
 import 'package:trx/components/custom_text_field.dart';
 import 'package:trx/features/signup/view/sign_up_view.dart';
 import 'package:trx/product/components/snackbar.dart';
+import 'package:trx/user/model/user_model.dart';
 import 'package:trx/user/viewmodel/user_viewmodel.dart';
 
 // HomeView import edilmeli
@@ -127,24 +129,27 @@ class _SignInViewState extends State<SignInView> {
   }
 
   Future<void> _login() async {
-    final userModel = await uvm.login(
+    final response = await uvm.login(
       email: usernameController.text.replaceAll(" ", ""),
       password: passwordController.text,
     );
 
     if (!mounted) return; // Check if the widget is still mounted
 
-    if (userModel != null) {
+    if (response is String) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(response);
+      Provider.of<UserViewmodel>(context, listen: false).setToken(response);
+      Provider.of<UserViewmodel>(context, listen: false)
+          .setUser(User(email: decodedToken.values.elementAt(1)));
       // Giriş başarılıysa HomeView ekranına yönlendir
+      CustomSnackBar(
+        contentText: "Giriş Başarılı.",
+        color: Color.fromARGB(255, 0, 154, 160),
+      );
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider(
-            create: (context) => UserViewmodel(),
-            child: HomeView(
-              viewModel: userModel,
-            ),
-          ),
+          builder: (context) => HomeView(),
         ),
       );
     } else {

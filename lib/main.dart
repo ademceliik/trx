@@ -23,7 +23,12 @@ Future<void> main() async {
     startBackgroundService();
   }
 
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserViewmodel(),
+      child: MyApp(),
+    ),
+  );
 }
 
 const notificationChannelId = 'my_foreground';
@@ -152,7 +157,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return MaterialApp(
+      title: '',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: Consumer<UserViewmodel>(
+        builder: (context, authProvider, child) {
+          // Token olup olmadığını kontrol ederek ekranı yönlendirin
+          return SignInView();
+        },
+      ),
+    );
+
+    /*  MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => UserViewmodel()),
           ProxyProvider<UserViewmodel, UserProvider>(
@@ -167,6 +186,6 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
           home: const SignInView(),
-        ));
+        )); */
   }
 }

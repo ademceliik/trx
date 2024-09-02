@@ -113,7 +113,7 @@ class _SignUpViewState extends State<SignUpView> {
 
     if (!mounted) return; // Check if the widget is still mounted
 
-    if (result is Map) {
+    if (result is String) {
       //return result["message"];
       ScaffoldMessenger.of(context).showSnackBar(
         CustomSnackBar(
@@ -137,38 +137,14 @@ class _SignUpViewState extends State<SignUpView> {
         } else if (item["code"] == "PasswordTooShort") {
           message += "Şifre 6 Karakterden Uzun Olmalı.";
         }
-        //message += "${item["description"]}\n";
       }
-      // return message;
       // Giriş başarısızsa uyarı göster
       ScaffoldMessenger.of(context).showSnackBar(
         CustomSnackBar(
           contentText: message,
-          color: Colors.redAccent,
+          color: Color.fromARGB(255, 0, 154, 160),
         ),
       );
     }
-/*     if (result is bool) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        CustomSnackBar(
-          contentText: "Kayıt Başarılı.",
-          color: Colors.redAccent,
-        ),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SignInView(),
-        ),
-      );
-    } else {
-      // Giriş başarısızsa uyarı göster
-      ScaffoldMessenger.of(context).showSnackBar(
-        CustomSnackBar(
-          contentText: "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.",
-          color: Colors.redAccent,
-        ),
-      );
-    } */
   }
 }

@@ -6,9 +6,9 @@ import 'package:trx/user/viewmodel/user_viewmodel.dart';
 import '../../../user/model/user_model.dart';
 
 class HomeView extends StatefulWidget {
-  final UserModel viewModel;
-
-  const HomeView({Key? key, required this.viewModel}) : super(key: key);
+  const HomeView({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -31,7 +31,6 @@ class _HomeViewState extends State<HomeView>
   ));
   @override
   void initState() {
-    userViewModel = widget.viewModel;
     super.initState();
   }
 
@@ -43,37 +42,34 @@ class _HomeViewState extends State<HomeView>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (context) => UserViewmodel(),
-        builder: (context, child) {
-          //final userViewmodel = Provider.of<UserViewmodel>(context);
-
-          return Scaffold(
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset("assets/logo.png"),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: Lottie.asset("assets/tractor.json",
-                      height: MediaQuery.of(context).size.height * 0.5),
-                ),
-                SlideTransition(
-                  position: _offsetAnimation,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Çalışıyor ${userViewModel.user?.email}",
-                      style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 0, 154, 160)),
-                    ),
-                  ),
-                ),
-              ],
+    final provider = Provider.of<UserViewmodel>(context, listen: false);
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset("assets/logo.png"),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: Lottie.asset("assets/tractor.json",
+                height: MediaQuery.of(context).size.height * 0.5),
+          ),
+          SlideTransition(
+            position: _offsetAnimation,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Çalışıyor ${provider.userModel.user?.email}",
+                style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 0, 154, 160)),
+              ),
             ),
-          );
-        });
+          ),
+        ],
+      ),
+    );
   }
+  //);
 }
+//}

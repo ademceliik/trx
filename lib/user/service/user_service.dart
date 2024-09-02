@@ -12,7 +12,7 @@ class UserService extends IUserService {
   UserService._init();
 
   @override
-  Future<UserModel?> login({
+  Future<dynamic> login({
     required String email,
     required String password,
     String? userToken,
@@ -24,19 +24,9 @@ class UserService extends IUserService {
         options: Options(headers: {"Authorization": "Bearer $userToken"}),
         model: UserModel(),
       );
-      final mdl = UserModel();
-      mdl.user = response;
-      // Check if response is of type UserLoginModel
-      return mdl;
-    } on DioException catch (e) {
-      // Log error response
-      print(
-          "DioException during login: ${e.response?.statusCode} ${e.message}");
-      throw Exception("Giriş başarısız. ${e.message}");
+      return response;
     } catch (e) {
-      // Catch any other exceptions
-      print("Unexpected error during login: $e");
-      throw Exception("Giriş başarısız. Lütfen tekrar deneyin.");
+      return false;
     }
   }
 

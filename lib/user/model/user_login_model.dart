@@ -1,4 +1,4 @@
-import 'package:trx/core/base/base_model.dart';
+/* import 'package:trx/core/base/base_model.dart';
 
 class UserLoginModel extends BaseModel {
   User? user;
@@ -34,3 +34,4 @@ class User {
         "password": password,
       };
 }
+ */

@@ -1,16 +1,21 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:trx/product/enum/view_state.dart';
-import 'package:trx/user/model/user_login_model.dart';
 import 'package:trx/user/model/user_model.dart';
 import 'package:trx/user/service/user_service.dart';
 
 class UserViewmodel with ChangeNotifier implements UserService {
-  UserLoginModel? userLoginModel;
   final _service = UserService.instance;
 
   ViewState _loginState = ViewState.idle;
   String? _token;
+  String? get token => _token;
+
+  void setToken(String token) {
+    _token = token;
+    notifyListeners();
+  }
 
   ViewState get loginState => _loginState;
 
@@ -19,11 +24,16 @@ class UserViewmodel with ChangeNotifier implements UserService {
     notifyListeners();
   }
 
-  UserModel? userModel;
-  String? get token => _token;
+  final UserModel _userModel = UserModel();
+  UserModel get userModel => _userModel;
+
+  void setUser(User user) {
+    _userModel.user = user;
+    notifyListeners();
+  }
 
   @override
-  Future<UserModel?> login({
+  Future<dynamic> login({
     required String email,
     required String password,
     String? userToken,
@@ -35,13 +45,11 @@ class UserViewmodel with ChangeNotifier implements UserService {
         password: password,
         userToken: userToken,
       );
-
-      if (response != null) {
-        userModel = response;
-        // _token = userLoginModel?.token;
-        return userModel;
-      } else {
-        throw Exception('Giriş başarısız. Yanıt null döndü.');
+      if (response is String) {
+        return response;
+      }
+      if (response is bool) {
+        return response;
       }
     } on DioException catch (e) {
       print(e.response);

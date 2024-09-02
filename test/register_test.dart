@@ -6,10 +6,10 @@ void main() {
 
   test("user should be register", () async {
     var result;
-    String email = "adem10@adem"; // try unique email
-    String password = "adem"; // should be longer 6 letter
+    String email = "adem13@adem"; // try unique email
+    String password = "ademad"; // should be longer 6 letter
     String fullName = "adem";
-    String userName = "adem002"; // try unique username
+    String userName = "adem005"; // try unique username
     result = await uvm.register(
       email: email,
       password: password,
@@ -17,6 +17,16 @@ void main() {
       userName: userName,
       // macAddress: macAdressController.text,
     );
-    expect(result, false);
+/*     List<Map> expected = [
+      {
+        'code': 'DuplicateUserName',
+        'description': 'Username \'adem002\' is already taken.'
+      },
+      {
+        'code': 'DuplicateEmail',
+        'description': 'Email \'adem10@adem\' is already taken.'
+      }
+    ]; */
+    expect(result, true);
   });
 }
