@@ -3,6 +3,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:provider/provider.dart';
 import 'package:trx/components/custom_elevated_button.dart';
 import 'package:trx/components/custom_text_field.dart';
+import 'package:trx/components/loading_indicator.dart';
 import 'package:trx/features/signup/view/sign_up_view.dart';
 import 'package:trx/product/components/snackbar.dart';
 import 'package:trx/user/model/user_model.dart';
@@ -129,11 +130,14 @@ class _SignInViewState extends State<SignInView> {
   }
 
   Future<void> _login() async {
+    LoadingIndicatorDialog lid = LoadingIndicatorDialog();
+
+    lid.show(context, text: "Giriş Yapılıyor..");
     final response = await uvm.login(
       email: usernameController.text.replaceAll(" ", ""),
       password: passwordController.text,
     );
-
+    lid.dismiss();
     if (!mounted) return; // Check if the widget is still mounted
 
     if (response is String) {
@@ -149,7 +153,7 @@ class _SignInViewState extends State<SignInView> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomeView(),
+          builder: (context) => const HomeView(),
         ),
       );
     } else {

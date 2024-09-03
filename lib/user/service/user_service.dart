@@ -69,4 +69,36 @@ class UserService extends IUserService {
       throw Exception("Kayıt başarısız. Lütfen tekrar deneyin.");
     }
   }
+
+  // New method for file upload
+  @override
+  Future<void> uploadFile(
+      {required String filePath, required String userToken}) async {
+    try {
+      final fileName = filePath.split('/').last;
+      FormData formData = FormData.fromMap({
+        "file": await MultipartFile.fromFile(filePath, filename: fileName),
+      });
+      final response = await NetworkManager.instance?.dioPost(
+        ServicePaths.upload.path,
+        data: formData,
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $userToken",
+            "Content-Type": 'multipart/form-data',
+            "accept": "*/*"
+          },
+          //contentType: 'multipart/form-data',
+        ),
+      );
+      print("File uploaded successfully: ${response?.data}");
+    } on DioException catch (e) {
+      print(
+          "DioException during file upload: ${e.response?.statusCode} ${e.message}");
+      throw Exception("Dosya yükleme başarısız. ${e.message}");
+    } catch (e) {
+      print("Unexpected error during file upload: $e");
+      throw Exception("Dosya yükleme başarısız. Lütfen tekrar deneyin.");
+    }
+  }
 }

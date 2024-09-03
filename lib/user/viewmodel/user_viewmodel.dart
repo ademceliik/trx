@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:trx/product/enum/view_state.dart';
 import 'package:trx/user/model/user_model.dart';
 import 'package:trx/user/service/user_service.dart';
@@ -84,6 +83,23 @@ class UserViewmodel with ChangeNotifier implements UserService {
       return null;
     } finally {
       loginState = ViewState.idle;
+    }
+  }
+
+  // Yeni dosya yükleme servisi
+  // 400 response db olmalı
+  // 401 unauth
+
+  @override
+  Future<bool> uploadFile(
+      {required String filePath, required String userToken}) async {
+    try {
+      await _service.uploadFile(filePath: filePath, userToken: userToken);
+      notifyListeners();
+      return true;
+    } on DioException catch (e) {
+      print("Dosya yükleme sırasında hata: ${e.message}");
+      throw Exception("Dosya yükleme başarısız. ${e.message}");
     }
   }
 }

@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:trx/user/viewmodel/user_viewmodel.dart';
 
@@ -29,6 +34,8 @@ class _HomeViewState extends State<HomeView>
     parent: _controller,
     curve: Curves.elasticIn,
   ));
+
+  late String token;
   @override
   void initState() {
     super.initState();
@@ -40,10 +47,74 @@ class _HomeViewState extends State<HomeView>
     super.dispose();
   }
 
+  String? selectedFilePath;
+  final int maxBackups = 5; // Maksimum yedek sayısını 5 olarak belirledik.
+  Future<void> selectFilePath() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+      if (result != null) {
+        setState(() {
+          selectedFilePath = result.files.single.path;
+        });
+
+        // Yedekleme işlemi için dosya yolunu kaydedin
+        await backupFile();
+      }
+    } on PlatformException catch (e) {
+      print("Unsupported operation: $e");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> backupFile() async {
+    if (selectedFilePath != null) {
+      final userViewModel = Provider.of<UserViewmodel>(context, listen: false);
+
+      // Yedekleme işlemi
+      await userViewModel.uploadFile(
+          filePath: selectedFilePath!, userToken: userViewModel.token!);
+
+      // Yedek dosyalarını yönet
+      //  await manageBackups();
+    }
+  }
+
+/*   Future<void> manageBackups() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final backupDir = Directory('${directory.path}/backups');
+
+    // Yedek klasörü mevcut değilse oluştur
+    if (!await backupDir.exists()) {
+      await backupDir.create(recursive: true);
+    }
+
+    // Yedek dosyalarını listele
+    List<FileSystemEntity> backups = backupDir.listSync();
+
+    // Yedek dosyası sayısı kontrolü
+    if (backups.length > maxBackups) {
+      backups.sort(
+          (a, b) => a.statSync().modified.compareTo(b.statSync().modified));
+      await backups.first.delete(); // En eski yedeği sil
+    }
+  }
+ */
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<UserViewmodel>(context, listen: false);
+    token = provider.token!;
     return Scaffold(
+      appBar: AppBar(
+        title: Text("TRAXNAV"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.folder_open),
+            onPressed: selectFilePath,
+          ),
+        ],
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

@@ -11,4 +11,5 @@ abstract class IUserService {
     required String password,
     //required String macAddress
   });
+  Future uploadFile({required String filePath, required String userToken});
 }

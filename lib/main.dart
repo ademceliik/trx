@@ -165,27 +165,9 @@ class MyApp extends StatelessWidget {
       ),
       home: Consumer<UserViewmodel>(
         builder: (context, authProvider, child) {
-          // Token olup olmadığını kontrol ederek ekranı yönlendirin
           return SignInView();
         },
       ),
     );
-
-    /*  MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => UserViewmodel()),
-          ProxyProvider<UserViewmodel, UserProvider>(
-            update: (_, userViewmodel, __) =>
-                UserProvider(userViewmodel.userModel),
-          ),
-        ],
-        child: MaterialApp(
-          title: '',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
-          ),
-          home: const SignInView(),
-        )); */
   }
 }
