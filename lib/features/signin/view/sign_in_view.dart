@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trx/components/custom_elevated_button.dart';
 import 'package:trx/components/custom_text_field.dart';
 import 'package:trx/components/loading_indicator.dart';
@@ -25,12 +26,14 @@ class _SignInViewState extends State<SignInView> {
   bool isObscure = true;
   late final TextEditingController usernameController;
   late final TextEditingController passwordController;
+  late final UserViewmodel provider;
 
   @override
   void initState() {
     _formKey = GlobalKey<FormState>();
     usernameController = TextEditingController();
     passwordController = TextEditingController();
+    provider = Provider.of<UserViewmodel>(context, listen: false);
     super.initState();
   }
 
@@ -42,7 +45,7 @@ class _SignInViewState extends State<SignInView> {
   }
 
   // User ViewModel
-  UserViewmodel uvm = UserViewmodel();
+  // UserViewmodel uvm = UserViewmodel();
 
   @override
   Widget build(BuildContext context) {
@@ -133,22 +136,27 @@ class _SignInViewState extends State<SignInView> {
     LoadingIndicatorDialog lid = LoadingIndicatorDialog();
 
     lid.show(context, text: "Giriş Yapılıyor..");
-    final response = await uvm.login(
+    final response = await provider.login(
       email: usernameController.text.replaceAll(" ", ""),
       password: passwordController.text,
     );
     lid.dismiss();
     if (!mounted) return; // Check if the widget is still mounted
 
-    if (response is String) {
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(response);
-      Provider.of<UserViewmodel>(context, listen: false).setToken(response);
-      Provider.of<UserViewmodel>(context, listen: false)
-          .setUser(User(email: decodedToken.values.elementAt(1)));
+    if (response is Map) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(response["token"]);
+      provider.setToken(response["token"]);
+      provider.setUser(User(email: decodedToken.values.elementAt(1)));
+      final files = await provider.getUserFiles(userToken: provider.token!);
+      provider.setUserFiles(files);
+
+      // Otomatik girisi saglamak icin tokeni sharedpreferences ile kaydet
+      saveToken(provider.token!);
+
       // Giriş başarılıysa HomeView ekranına yönlendir
       CustomSnackBar(
-        contentText: "Giriş Başarılı.",
-        color: Color.fromARGB(255, 0, 154, 160),
+        contentText: response["message"],
+        color: const Color.fromARGB(255, 0, 154, 160),
       );
       Navigator.pushReplacement(
         context,
@@ -165,5 +173,10 @@ class _SignInViewState extends State<SignInView> {
         ),
       );
     }
+  }
+
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_token', token);
   }
 }

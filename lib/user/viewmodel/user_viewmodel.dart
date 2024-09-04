@@ -6,14 +6,20 @@ import 'package:trx/user/service/user_service.dart';
 
 class UserViewmodel with ChangeNotifier implements UserService {
   final _service = UserService.instance;
-
+  final UserModel _userModel = UserModel();
   ViewState _loginState = ViewState.idle;
   String? _token;
+  List? userFiles;
+  void setUserFiles(files) {
+    userFiles = files;
+    notifyListeners();
+  }
+
   String? get token => _token;
 
   void setToken(String token) {
     _token = token;
-    notifyListeners();
+    // notifyListeners();
   }
 
   ViewState get loginState => _loginState;
@@ -23,12 +29,11 @@ class UserViewmodel with ChangeNotifier implements UserService {
     notifyListeners();
   }
 
-  final UserModel _userModel = UserModel();
   UserModel get userModel => _userModel;
 
   void setUser(User user) {
     _userModel.user = user;
-    notifyListeners();
+    //notifyListeners();
   }
 
   @override
@@ -44,7 +49,7 @@ class UserViewmodel with ChangeNotifier implements UserService {
         password: password,
         userToken: userToken,
       );
-      if (response is String) {
+      if (response is Map) {
         return response;
       }
       if (response is bool) {
@@ -60,22 +65,20 @@ class UserViewmodel with ChangeNotifier implements UserService {
   }
 
   @override
-  Future<dynamic> register({
-    required String fullName,
-    required String userName,
-    required String email,
-    required String password,
-    // required String macAddress
-  }) async {
+  Future<dynamic> register(
+      {required String fullName,
+      required String userName,
+      required String email,
+      required String password,
+      required String macAddress}) async {
     loginState = ViewState.busy;
     try {
       final response = await _service.register(
-        fullName: fullName,
-        userName: userName,
-        email: email,
-        password: password,
-        //macAddress: macAddress
-      );
+          fullName: fullName,
+          userName: userName,
+          email: email,
+          password: password,
+          macAddress: macAddress);
 
       return response;
     } on DioException catch (e) {
@@ -86,20 +89,43 @@ class UserViewmodel with ChangeNotifier implements UserService {
     }
   }
 
-  // Yeni dosya yükleme servisi
-  // 400 response db olmalı
-  // 401 unauth
-
   @override
   Future<bool> uploadFile(
       {required String filePath, required String userToken}) async {
     try {
-      await _service.uploadFile(filePath: filePath, userToken: userToken);
+      final response =
+          await _service.uploadFile(filePath: filePath, userToken: userToken);
       notifyListeners();
-      return true;
+      return response;
     } on DioException catch (e) {
       print("Dosya yükleme sırasında hata: ${e.message}");
       throw Exception("Dosya yükleme başarısız. ${e.message}");
+    }
+  }
+
+  @override
+  Future<List> getUserFiles({required String userToken}) async {
+    try {
+      final response = await _service.getUserFiles(userToken: userToken);
+      notifyListeners();
+      return response;
+    } on DioException catch (e) {
+      print("Getirme sırasında hata: ${e.message}");
+      return List.empty();
+    }
+  }
+
+  @override
+  Future<bool> deleteFile(
+      {required String fileName, required String userToken}) async {
+    try {
+      final response =
+          await _service.deleteFile(userToken: userToken, fileName: fileName);
+      notifyListeners();
+      return response;
+    } on DioException catch (e) {
+      print("Silme sırasında hata: ${e.message}");
+      return false;
     }
   }
 }

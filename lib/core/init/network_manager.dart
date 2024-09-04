@@ -1,10 +1,6 @@
 import 'dart:developer';
-
 import 'package:dio/dio.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:trx/core/base/base_model.dart';
-import 'package:trx/user/model/user_model.dart';
-
 import '../../../product/enum/service_paths.dart';
 
 class NetworkManager {
@@ -31,9 +27,8 @@ class NetworkManager {
     switch (response.statusCode) {
       case 200:
         final responseBody = response.data;
-        log(responseBody);
-        if ((responseBody is List) && model != null) {
-          return responseBody.map((e) => model.fromJson(e)).toList();
+        if ((responseBody is List)) {
+          return responseBody;
         } else if ((responseBody is Map) && model != null) {
           return model.fromJson(responseBody as Map<String, dynamic>);
         } else {
@@ -46,30 +41,11 @@ class NetworkManager {
   Future<dynamic> dioPost<T extends BaseModel>(String path,
       {T? model, dynamic data, Options? options}) async {
     Response response = await _dio.post(path, options: options, data: data);
+    log(response.data);
     if (response.statusCode == 200 || response.statusCode == 201) {
       final responseBody = response.data;
       if ((responseBody is Map) && model != null) {
-        if (responseBody.keys.elementAt(0) == "token") {
-          return responseBody["token"];
-        } else if (responseBody.keys.elementAt(0) == "message") {
-          return responseBody["message"];
-        }
-/*         // servisin döndüğü tokeni tutuyor
-        // istek login istegiyse response token donuyor
-        if (responseBody.keys.elementAt(0) == "token") {
-          final token = responseBody["token"];
-
-          // tokeni json olarak decode ediyor
-          Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-          log(decodedToken.values.elementAt(1));
-          User? usermodel = User(email: decodedToken.values.elementAt(1));
-
-          // user modeli donuluyor.
-          return usermodel;
-        } else {
-          return responseBody;
-        }
-        //model.fromJson(decodedToken); */
+        return responseBody;
       } else {
         return responseBody;
       }
@@ -114,14 +90,7 @@ class NetworkManager {
       {T? model, dynamic data, Options? options}) async {
     Response response = await _dio.delete(path, options: options, data: data);
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseBody = response.data;
-      if ((responseBody is List) && model != null) {
-        return responseBody.map((e) => model.fromJson(e)).toList();
-      } else if ((responseBody is Map) && model != null) {
-        return model.fromJson(responseBody as Map<String, dynamic>);
-      } else {
-        return responseBody;
-      }
+      return true;
     }
   }
 }

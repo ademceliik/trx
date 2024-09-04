@@ -108,12 +108,12 @@ class _SignUpViewState extends State<SignUpView> {
       password: passwordController.text,
       fullName: nameController.text,
       userName: usernameController.text,
-      // macAddress: macAdressController.text,
+      macAddress: macAdressController.text,
     );
 
     if (!mounted) return; // Check if the widget is still mounted
 
-    if (result is String) {
+    if (result is Map) {
       //return result["message"];
       ScaffoldMessenger.of(context).showSnackBar(
         CustomSnackBar(

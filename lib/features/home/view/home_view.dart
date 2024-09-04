@@ -1,19 +1,15 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:trx/product/components/snackbar.dart';
 import 'package:trx/user/viewmodel/user_viewmodel.dart';
-
-import '../../../user/model/user_model.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -21,7 +17,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView>
     with SingleTickerProviderStateMixin {
-  late final UserModel userViewModel;
+  late final UserViewmodel userViewModel;
 
   late final AnimationController _controller = AnimationController(
     duration: const Duration(seconds: 2),
@@ -38,6 +34,8 @@ class _HomeViewState extends State<HomeView>
   late String token;
   @override
   void initState() {
+    userViewModel = Provider.of<UserViewmodel>(context, listen: false);
+
     super.initState();
   }
 
@@ -59,6 +57,14 @@ class _HomeViewState extends State<HomeView>
         });
 
         // Yedekleme işlemi için dosya yolunu kaydedin
+        if (userViewModel.userFiles != null) {
+          if (userViewModel.userFiles!.length >= 4) {
+            userViewModel.deleteFile(
+                fileName: userViewModel.userFiles![0],
+                userToken: userViewModel.token!);
+          }
+        }
+
         await backupFile();
       }
     } on PlatformException catch (e) {
@@ -70,42 +76,41 @@ class _HomeViewState extends State<HomeView>
 
   Future<void> backupFile() async {
     if (selectedFilePath != null) {
-      final userViewModel = Provider.of<UserViewmodel>(context, listen: false);
-
       // Yedekleme işlemi
       await userViewModel.uploadFile(
           filePath: selectedFilePath!, userToken: userViewModel.token!);
-
-      // Yedek dosyalarını yönet
-      //  await manageBackups();
+      final files =
+          await userViewModel.getUserFiles(userToken: userViewModel.token!);
+      userViewModel.setUserFiles(files);
+      ScaffoldMessenger.of(context).showSnackBar(
+        CustomSnackBar(
+          contentText: "Dosya Başarıyla Yüklendi.",
+          color: Colors.green,
+        ),
+      );
     }
   }
 
-/*   Future<void> manageBackups() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final backupDir = Directory('${directory.path}/backups');
-
-    // Yedek klasörü mevcut değilse oluştur
-    if (!await backupDir.exists()) {
-      await backupDir.create(recursive: true);
-    }
-
-    // Yedek dosyalarını listele
-    List<FileSystemEntity> backups = backupDir.listSync();
-
-    // Yedek dosyası sayısı kontrolü
-    if (backups.length > maxBackups) {
-      backups.sort(
-          (a, b) => a.statSync().modified.compareTo(b.statSync().modified));
-      await backups.first.delete(); // En eski yedeği sil
-    }
-  }
- */
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<UserViewmodel>(context, listen: false);
-    token = provider.token!;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          buildDialog(context, userViewModel.userFiles ?? List.empty());
+
+/*           var status = await Permission.storage.status;
+          if (status.isDenied) {
+            print('İzin Hiç sorulmadı');
+            await Permission.storage.request();
+            await Permission.manageExternalStorage.status;
+          } else if (status.isGranted) {
+            print('İzin önceden soruldu ve kullanıcı izni verdi');
+          } else {
+            print('İzin önceden soruldu ve kullanıcı izni vermedi');
+          } */
+        },
+        child: Icon(Icons.games_outlined),
+      ),
       appBar: AppBar(
         title: Text("TRAXNAV"),
         actions: [
@@ -129,7 +134,7 @@ class _HomeViewState extends State<HomeView>
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "Çalışıyor ${provider.userModel.user?.email}",
+                "Çalışıyor ${userViewModel.userModel.user?.email}",
                 style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -139,6 +144,30 @@ class _HomeViewState extends State<HomeView>
           ),
         ],
       ),
+    );
+  }
+
+  Future<dynamic> buildDialog(BuildContext context, List<dynamic> items) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Liste'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: items.map((item) => Text(item)).toList(),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Tamam'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
   //);

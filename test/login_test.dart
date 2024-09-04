@@ -6,8 +6,8 @@ void main() {
 
   test("user login", () async {
     var result;
-    String email = "adem10@adem"; // try unique email
-    String password = "ademade"; // should be longer 6 letter
+    String email = "adem@adem"; // try unique email
+    String password = "ademadem"; // should be longer 6 letter
     result = await uvm.login(
       email: email,
       password: password,

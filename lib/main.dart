@@ -3,14 +3,26 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trx/features/home/view/home_view.dart';
 import 'package:trx/features/signin/view/sign_in_view.dart';
-import 'package:trx/user/model/user_provider.dart';
+import 'package:trx/user/model/user_model.dart';
 import 'package:trx/user/viewmodel/user_viewmodel.dart';
+
+Future<String?> getToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('user_token');
+}
+
+Future<void> deleteToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('user_token');
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,18 +34,20 @@ Future<void> main() async {
   if (prefs.getBool("is_service_running") ?? false) {
     startBackgroundService();
   }
+  String? token = await getToken();
 
   runApp(
     ChangeNotifierProvider(
       create: (context) => UserViewmodel(),
-      child: MyApp(),
+      child: MyApp(
+        token: token,
+      ),
     ),
   );
 }
 
 const notificationChannelId = 'my_foreground';
 const notificationId = 888;
-
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
 
@@ -135,6 +149,16 @@ void onStart(ServiceInstance service) async {
     print("Service is successfully running ${DateTime.now().second}");
   });
 
+  // arkaplanda upload islemleri yapilacak
+/*   final token = await getToken();
+
+  Timer.periodic(const Duration(minutes: 1), (timer) {
+    final UserViewmodel uvm = UserViewmodel();
+
+    if (token != null) {
+      uvm.uploadFile(filePath: "/storage/emulated/0/test.db", userToken: token);
+    }
+  }); */
   Timer.periodic(const Duration(seconds: 1), (timer) async {
     flutterLocalNotificationsPlugin.show(
       notificationId,
@@ -153,10 +177,30 @@ void onStart(ServiceInstance service) async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  final String? token;
+  const MyApp({super.key, this.token});
   @override
   Widget build(BuildContext context) {
+    // token hala gecerliyse tokenla giris yap
+    bool isStillAvailable = false;
+    final provider = Provider.of<UserViewmodel>(context, listen: false);
+    // kayitli token varsa tokeni viewmodela ekle ve homeview icin user olustur
+    if (token != null) {
+      var decodedDate = JwtDecoder.getExpirationDate(token!);
+      if (decodedDate.isAfter(DateTime.now())) {
+        provider.setToken(token!);
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
+
+        provider.setUser(User(email: decodedToken.values.elementAt(1)));
+        isStillAvailable = true;
+      }
+      // token gecerli degilse tokeni sil
+      else {
+        deleteToken();
+        isStillAvailable = false;
+      }
+    }
+
     return MaterialApp(
       title: '',
       theme: ThemeData(
@@ -165,7 +209,7 @@ class MyApp extends StatelessWidget {
       ),
       home: Consumer<UserViewmodel>(
         builder: (context, authProvider, child) {
-          return SignInView();
+          return isStillAvailable ? const HomeView() : const SignInView();
         },
       ),
     );

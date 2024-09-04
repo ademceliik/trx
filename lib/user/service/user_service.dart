@@ -31,13 +31,12 @@ class UserService extends IUserService {
   }
 
   @override
-  Future<dynamic> register({
-    required String fullName,
-    required String userName,
-    required String email,
-    required String password,
-    // required String macAddress
-  }) async {
+  Future<dynamic> register(
+      {required String fullName,
+      required String userName,
+      required String email,
+      required String password,
+      required String macAddress}) async {
     try {
       final response = await NetworkManager.instance?.dioPost<UserModel>(
         ServicePaths.register.path,
@@ -46,7 +45,7 @@ class UserService extends IUserService {
           "userName": userName,
           "email": email,
           "password": password,
-          //     "macAddress": macAddress
+          "MacAdress": macAddress
         },
         model: UserModel(),
       );
@@ -72,14 +71,14 @@ class UserService extends IUserService {
 
   // New method for file upload
   @override
-  Future<void> uploadFile(
+  Future<bool> uploadFile(
       {required String filePath, required String userToken}) async {
     try {
       final fileName = filePath.split('/').last;
       FormData formData = FormData.fromMap({
         "file": await MultipartFile.fromFile(filePath, filename: fileName),
       });
-      final response = await NetworkManager.instance?.dioPost(
+      await NetworkManager.instance?.dioPost(
         ServicePaths.upload.path,
         data: formData,
         options: Options(
@@ -91,14 +90,44 @@ class UserService extends IUserService {
           //contentType: 'multipart/form-data',
         ),
       );
-      print("File uploaded successfully: ${response?.data}");
+      return true;
+      //print("File uploaded successfully: ${response?.data}");
     } on DioException catch (e) {
-      print(
+      return false;
+      /*  print(
           "DioException during file upload: ${e.response?.statusCode} ${e.message}");
-      throw Exception("Dosya yükleme başarısız. ${e.message}");
-    } catch (e) {
-      print("Unexpected error during file upload: $e");
-      throw Exception("Dosya yükleme başarısız. Lütfen tekrar deneyin.");
+      throw Exception("Dosya yükleme başarısız. ${e.message}"); */
+    }
+  }
+
+  @override
+  Future<List> getUserFiles({required String userToken}) async {
+    try {
+      final response = await NetworkManager.instance?.dioGet(
+        ServicePaths.getUserFiles.path,
+        options: Options(
+          headers: {"Authorization": "Bearer $userToken", "accept": "*/*"},
+        ),
+      );
+      return response;
+    } on DioException catch (e) {
+      return List.empty();
+    }
+  }
+
+  @override
+  Future<bool> deleteFile(
+      {required String fileName, required String userToken}) async {
+    try {
+      final response = await NetworkManager.instance?.dioDelete(
+        "${ServicePaths.delete.path}/$fileName",
+        options: Options(
+          headers: {"Authorization": "Bearer $userToken", "accept": "*/*"},
+        ),
+      );
+      return response;
+    } on DioException catch (e) {
+      return false;
     }
   }
 }
