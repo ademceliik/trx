@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:trx/product/components/snackbar.dart';
 import 'package:trx/user/viewmodel/user_viewmodel.dart';
@@ -77,17 +81,26 @@ class _HomeViewState extends State<HomeView>
   Future<void> backupFile() async {
     if (selectedFilePath != null) {
       // Yedekleme işlemi
-      await userViewModel.uploadFile(
+      var result = await userViewModel.uploadFile(
           filePath: selectedFilePath!, userToken: userViewModel.token!);
       final files =
           await userViewModel.getUserFiles(userToken: userViewModel.token!);
       userViewModel.setUserFiles(files);
-      ScaffoldMessenger.of(context).showSnackBar(
-        CustomSnackBar(
-          contentText: "Dosya Başarıyla Yüklendi.",
-          color: Colors.green,
-        ),
-      );
+      if (result) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          CustomSnackBar(
+            contentText: "Dosya Başarıyla Yüklendi.",
+            color: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          CustomSnackBar(
+            contentText: "Dosya Yüklenemedi.",
+            color: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -97,6 +110,21 @@ class _HomeViewState extends State<HomeView>
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           buildDialog(context, userViewModel.userFiles ?? List.empty());
+
+          //selectedFilePath = "/storage/emulated/0/test.db";
+          //await backupFile();
+
+/*           final file = File(
+              '/storage/emulated/0/test.db'); // Burada 'your_file.txt' dosya adını güncelleyin
+
+          // Dosyanın varlığını kontrol et
+          if (!await file.exists()) {
+            print('Dosya bulunamadı');
+            return;
+          } else {
+            await userViewModel.uploadFile(
+                filePath: file.path, userToken: userViewModel.token!);
+          } */
 
 /*           var status = await Permission.storage.status;
           if (status.isDenied) {

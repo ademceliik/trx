@@ -141,7 +141,6 @@ class _SignInViewState extends State<SignInView> {
       password: passwordController.text,
     );
     lid.dismiss();
-    if (!mounted) return; // Check if the widget is still mounted
 
     if (response is Map) {
       Map<String, dynamic> decodedToken = JwtDecoder.decode(response["token"]);
@@ -158,6 +157,7 @@ class _SignInViewState extends State<SignInView> {
         contentText: response["message"],
         color: const Color.fromARGB(255, 0, 154, 160),
       );
+      if (!mounted) return; // Check if the widget is still mounted
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -165,6 +165,8 @@ class _SignInViewState extends State<SignInView> {
         ),
       );
     } else {
+      if (!mounted) return; // Check if the widget is still mounted
+
       // Giriş başarısızsa uyarı göster
       ScaffoldMessenger.of(context).showSnackBar(
         CustomSnackBar(

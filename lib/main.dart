@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -178,11 +179,12 @@ void onStart(ServiceInstance service) async {
 
 class MyApp extends StatelessWidget {
   final String? token;
+
   const MyApp({super.key, this.token});
+
   @override
   Widget build(BuildContext context) {
     // token hala gecerliyse tokenla giris yap
-    bool isStillAvailable = false;
     final provider = Provider.of<UserViewmodel>(context, listen: false);
     // kayitli token varsa tokeni viewmodela ekle ve homeview icin user olustur
     if (token != null) {
@@ -192,12 +194,12 @@ class MyApp extends StatelessWidget {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
 
         provider.setUser(User(email: decodedToken.values.elementAt(1)));
-        isStillAvailable = true;
+        //isStillAvailable = true;
       }
       // token gecerli degilse tokeni sil
       else {
         deleteToken();
-        isStillAvailable = false;
+        //isStillAvailable = false;
       }
     }
 
@@ -209,7 +211,7 @@ class MyApp extends StatelessWidget {
       ),
       home: Consumer<UserViewmodel>(
         builder: (context, authProvider, child) {
-          return isStillAvailable ? const HomeView() : const SignInView();
+          return provider.token != null ? const HomeView() : const SignInView();
         },
       ),
     );

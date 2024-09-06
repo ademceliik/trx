@@ -93,6 +93,8 @@ class UserService extends IUserService {
       return true;
       //print("File uploaded successfully: ${response?.data}");
     } on DioException catch (e) {
+      print(
+          "DioException during file upload: ${e.response?.statusCode} ${e.message}");
       return false;
       /*  print(
           "DioException during file upload: ${e.response?.statusCode} ${e.message}");

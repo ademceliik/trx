@@ -23,7 +23,7 @@ class NetworkManager {
     Response response = await _dio.get(path,
         options: options, queryParameters: queryParameters);
 
-    log(response.data.toString());
+    //log(response.data.toString());
     switch (response.statusCode) {
       case 200:
         final responseBody = response.data;
@@ -41,7 +41,6 @@ class NetworkManager {
   Future<dynamic> dioPost<T extends BaseModel>(String path,
       {T? model, dynamic data, Options? options}) async {
     Response response = await _dio.post(path, options: options, data: data);
-    log(response.data);
     if (response.statusCode == 200 || response.statusCode == 201) {
       final responseBody = response.data;
       if ((responseBody is Map) && model != null) {
