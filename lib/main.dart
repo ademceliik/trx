@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -25,6 +24,22 @@ Future<void> deleteToken() async {
   await prefs.remove('user_token');
 }
 
+/* Future<void> uploadFile() async
+{
+    // arkaplanda upload islemleri yapilacak
+  final token = await getToken();
+
+  Timer.periodic(const Duration(minutes: 1), (timer) async {
+    final UserViewmodel uvm = UserViewmodel();
+    print("calisti");
+    if (token != null) {
+      var result = await uvm.uploadFile(
+          filePath: "/storage/emulated/0/test.db", userToken: token);
+      print(result);
+    }
+  });
+}
+ */
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeService();
@@ -151,15 +166,17 @@ void onStart(ServiceInstance service) async {
   });
 
   // arkaplanda upload islemleri yapilacak
-/*   final token = await getToken();
+  final token = await getToken();
 
-  Timer.periodic(const Duration(minutes: 1), (timer) {
+  Timer.periodic(const Duration(minutes: 1), (timer) async {
     final UserViewmodel uvm = UserViewmodel();
-
+    print("calisti");
     if (token != null) {
-      uvm.uploadFile(filePath: "/storage/emulated/0/test.db", userToken: token);
+      var result = await uvm.uploadFile(
+          filePath: "/storage/emulated/0/test.db", userToken: token);
+      print(result);
     }
-  }); */
+  });
   Timer.periodic(const Duration(seconds: 1), (timer) async {
     flutterLocalNotificationsPlugin.show(
       notificationId,

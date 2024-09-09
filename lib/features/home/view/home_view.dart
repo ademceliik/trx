@@ -39,7 +39,7 @@ class _HomeViewState extends State<HomeView>
   @override
   void initState() {
     userViewModel = Provider.of<UserViewmodel>(context, listen: false);
-
+    _requestPermissions();
     super.initState();
   }
 
@@ -47,6 +47,24 @@ class _HomeViewState extends State<HomeView>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future _requestPermissions() async {
+    // İzinleri kontrol et ve iste
+    if (await Permission.storage.request().isGranted) {
+      // İzin verildi
+      print("Depolama izni verildi.");
+    } else {
+      // İzin reddedildi
+      print("Depolama izni reddedildi.");
+    }
+
+    // Android 11 ve üstü için ekstra izin
+    if (await Permission.manageExternalStorage.request().isGranted) {
+      print("Kapsamlı depolama izni verildi.");
+    } else {
+      print("Kapsamlı depolama izni reddedildi.");
+    }
   }
 
   String? selectedFilePath;
@@ -109,33 +127,11 @@ class _HomeViewState extends State<HomeView>
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          final files =
+              await userViewModel.getUserFiles(userToken: userViewModel.token!);
+          userViewModel.setUserFiles(files);
+          if (!mounted) return;
           buildDialog(context, userViewModel.userFiles ?? List.empty());
-
-          //selectedFilePath = "/storage/emulated/0/test.db";
-          //await backupFile();
-
-/*           final file = File(
-              '/storage/emulated/0/test.db'); // Burada 'your_file.txt' dosya adını güncelleyin
-
-          // Dosyanın varlığını kontrol et
-          if (!await file.exists()) {
-            print('Dosya bulunamadı');
-            return;
-          } else {
-            await userViewModel.uploadFile(
-                filePath: file.path, userToken: userViewModel.token!);
-          } */
-
-/*           var status = await Permission.storage.status;
-          if (status.isDenied) {
-            print('İzin Hiç sorulmadı');
-            await Permission.storage.request();
-            await Permission.manageExternalStorage.status;
-          } else if (status.isGranted) {
-            print('İzin önceden soruldu ve kullanıcı izni verdi');
-          } else {
-            print('İzin önceden soruldu ve kullanıcı izni vermedi');
-          } */
         },
         child: Icon(Icons.games_outlined),
       ),
