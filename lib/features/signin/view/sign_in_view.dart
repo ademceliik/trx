@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trx/components/custom_elevated_button.dart';
-import 'package:trx/components/custom_text_field.dart';
-import 'package:trx/components/loading_indicator.dart';
+import 'package:trx/core/background/mac-address/mac_address_manager.dart';
+import 'package:trx/product/components/custom_elevated_button.dart';
+import 'package:trx/product/components/custom_text_field.dart';
+import 'package:trx/product/components/loading_indicator.dart';
 import 'package:trx/features/signup/view/sign_up_view.dart';
 import 'package:trx/product/components/snackbar.dart';
 import 'package:trx/user/model/user_model.dart';
 import 'package:trx/user/viewmodel/user_viewmodel.dart';
 
-// HomeView import edilmeli
-import 'package:trx/features/home/view/home_view.dart';
+import '../../../core/background/connection/connection_manager.dart';
+import '../../../core/background/service/background_service.dart';
+import '../../home/view/home_view.dart';
 
 class SignInView extends StatefulWidget {
   const SignInView({super.key});
@@ -50,81 +52,85 @@ class _SignInViewState extends State<SignInView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Center(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Image.asset(
-                    "assets/logo.png",
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.05,
-                ),
-                CustomTextField(
-                  controller: usernameController,
-                  hintText: "E-Posta",
-                  icon: Icons.email,
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.02,
-                ),
-                CustomTextField(
-                  controller: passwordController,
-                  hintText: "Şifre",
-                  icon: Icons.lock,
-                  isObscure: isObscure,
-                  suffix: InkWell(
-                    onTap: () {
-                      setState(() {
-                        isObscure = !isObscure;
-                      });
-                    },
-                    child: Icon(isObscure
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined),
-                  ),
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.02,
-                ),
-                CustomElevatedButton(
-                  buttonText: "Giriş Yap",
-                  onPressed: () async {
-                    await _login();
-                  },
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.04,
-                ),
-                Row(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Center(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Henüz TRAXNAV'lı değil misin?"),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SignUpView()));
-                      },
-                      child: const Text(
-                        "TRAXNAV'lı Ol",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 0, 154, 160),
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Image.asset(
+                        "assets/logo.png",
+                        fit: BoxFit.cover,
                       ),
                     ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.05,
+                    ),
+                    CustomTextField(
+                      controller: usernameController,
+                      hintText: "E-Posta",
+                      icon: Icons.email,
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                    CustomTextField(
+                      controller: passwordController,
+                      hintText: "Şifre",
+                      icon: Icons.lock,
+                      isObscure: isObscure,
+                      suffix: InkWell(
+                        onTap: () {
+                          setState(() {
+                            isObscure = !isObscure;
+                          });
+                        },
+                        child: Icon(isObscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined),
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                    CustomElevatedButton(
+                      buttonText: "Giriş Yap",
+                      onPressed: () async {
+                        await _login();
+                      },
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.04,
+                    ),
+                    Row(
+                      children: [
+                        const Text("Henüz TRAXNAV'lı değil misin?"),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const SignUpView()));
+                          },
+                          child: const Text(
+                            "TRAXNAV'lı Ol",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 0, 154, 160),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
                   ],
-                )
-              ],
+                ),
+              ),
             ),
           ),
         ),
@@ -133,6 +139,28 @@ class _SignInViewState extends State<SignInView> {
   }
 
   Future<void> _login() async {
+    final macAddressManager = MacAddressManager();
+    final mac = await macAddressManager.getMacAddress();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      CustomSnackBar(
+        contentText: mac!,
+        color: Colors.redAccent,
+      ),
+    );
+    final connectionManager = ConnectionManager();
+    var connection = await connectionManager.isInternetConnected();
+    if (!mounted) return; // Check if the widget is still mounted
+    if (!connection) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        CustomSnackBar(
+          contentText:
+              "Giriş başarısız. Lütfen internet bağlantınızı kontrol edin.",
+          color: Colors.redAccent,
+        ),
+      );
+      return;
+    }
     LoadingIndicatorDialog lid = LoadingIndicatorDialog();
 
     lid.show(context, text: "Giriş Yapılıyor..");
@@ -151,12 +179,8 @@ class _SignInViewState extends State<SignInView> {
 
       // Otomatik girisi saglamak icin tokeni sharedpreferences ile kaydet
       saveToken(provider.token!);
+      await initializeRun();
 
-      // Giriş başarılıysa HomeView ekranına yönlendir
-      CustomSnackBar(
-        contentText: response["message"],
-        color: const Color.fromARGB(255, 0, 154, 160),
-      );
       if (!mounted) return; // Check if the widget is still mounted
       Navigator.pushReplacement(
         context,

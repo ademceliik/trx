@@ -7,6 +7,7 @@ class UserModel extends BaseModel {
   fromJson(Map<String, dynamic> json) => UserModel(
         user: json["user"] == null ? null : User.fromJson(json["user"]),
       );
+  @override
   Map<String, dynamic> toJson() => {
         "user": user?.toJson(),
       };
@@ -33,27 +34,3 @@ class User {
         "macAddress": macAddress,
       };
 }
-
-
-/* class UserModel {
-  String? name;
-  String? username;
-  String? email;
-
-  UserModel({this.name, this.username, this.email});
-
-  UserModel.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    username = json['username'];
-    email = json['email'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['name'] = name;
-    data['username'] = username;
-    data['email'] = email;
-    return data;
-  }
-}
- */

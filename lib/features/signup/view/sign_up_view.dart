@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:trx/components/custom_elevated_button.dart';
-import 'package:trx/components/custom_text_field.dart';
+import 'package:trx/product/components/custom_elevated_button.dart';
+import 'package:trx/product/components/custom_text_field.dart';
 import 'package:trx/features/signin/view/sign_in_view.dart';
 
+import '../../../core/background/connection/connection_manager.dart';
+import '../../../product/components/loading_indicator.dart';
 import '../../../product/components/snackbar.dart';
 import '../../../user/viewmodel/user_viewmodel.dart';
-import '../../home/view/home_view.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});
@@ -103,6 +104,22 @@ class _SignUpViewState extends State<SignUpView> {
   }
 
   Future<void> register() async {
+    final connectionManager = ConnectionManager();
+    var connection = await connectionManager.isInternetConnected();
+    if (!mounted) return; // Check if the widget is still mounted
+    if (!connection) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        CustomSnackBar(
+          contentText:
+              "Kayıt başarısız. Lütfen internet bağlantınızı kontrol edin.",
+          color: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+    LoadingIndicatorDialog lid = LoadingIndicatorDialog();
+
+    lid.show(context, text: "Kayıt Oluyor..");
     final result = await uvm.register(
       email: emailController.text.replaceAll(" ", ""),
       password: passwordController.text,
@@ -110,23 +127,32 @@ class _SignUpViewState extends State<SignUpView> {
       userName: usernameController.text,
       macAddress: macAdressController.text,
     );
-
+    lid.dismiss();
     if (!mounted) return; // Check if the widget is still mounted
 
     if (result is Map) {
+      if (result["status"] == 400) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          CustomSnackBar(
+            contentText: "Lütfen alanları eksiksiz doldurunuz.",
+            color: Colors.red,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          CustomSnackBar(
+            contentText: "Kayıt Başarılı.",
+            color: const Color.fromARGB(255, 0, 154, 160),
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SignInView(),
+          ),
+        );
+      }
       //return result["message"];
-      ScaffoldMessenger.of(context).showSnackBar(
-        CustomSnackBar(
-          contentText: "Kayıt Başarılı.",
-          color: Colors.redAccent,
-        ),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SignInView(),
-        ),
-      );
     } else if (result is List) {
       String message = "";
       for (var item in result) {
@@ -142,7 +168,7 @@ class _SignUpViewState extends State<SignUpView> {
       ScaffoldMessenger.of(context).showSnackBar(
         CustomSnackBar(
           contentText: message,
-          color: Color.fromARGB(255, 0, 154, 160),
+          color: Colors.red,
         ),
       );
     }

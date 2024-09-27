@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:trx/core/base/base_model.dart';
 import '../../../product/enum/service_paths.dart';
